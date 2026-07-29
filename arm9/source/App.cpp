@@ -79,7 +79,7 @@ void App::DisplaySplashScreen() const
     // Build 001: choose one of ten branded splash variants at boot.
     // The hardware registers add enough variation between boots without
     // requiring the filesystem or RTC to be initialized first.
-    const u32 splashIndex = (REG_VCOUNT ^ REG_KEYINPUT ^ REG_TM0CNT_L) % 10;
+    const u32 splashIndex = rand() % 10;
 
     const unsigned int* tiles = splashEnhanced01Tiles;
     const unsigned short* map = splashEnhanced01Map;
