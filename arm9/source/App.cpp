@@ -27,10 +27,10 @@
 #include "themes/ThemeInfoFactory.h"
 #include "themes/ThemeFactory.h"
 #include "gui/Gx.h"
-#include "splashTop.h"
+#include <nds/arm9/background.h>
+#include "SplashPremiumData.h"
 #include "App.h"
 
-#define SPLASH_FRAMES       44
 
 App::App(IAppSettingsService& appSettingsService, IBgmService& bgmService)
     : _mainObjPltt(GFX_PLTT_OBJ_MAIN)
@@ -67,23 +67,41 @@ void App::InitVramMapping() const
 
 void App::DisplaySplashScreen() const
 {
-    dma_ntrCopy32(3, splashTopTiles, GFX_BG_SUB, splashTopTilesLen);
-    dma_ntrCopy32(3, splashTopMap, (u8*)GFX_BG_SUB + 0xC000, splashTopMapLen);
-    mem_setVramHMapping(MEM_VRAM_H_LCDC);
-    dma_ntrCopy32(3, splashTopPal, (void*)0x0689A000, splashTopPalLen);
-    mem_setVramHMapping(MEM_VRAM_H_SUB_BG_EXT_PLTT_SLOT_0123);
+    // Use a 16-bit bitmap instead of an 8-bit tiled background. The premium
+    // artwork contains hundreds of unique tiles, which overlapped resources
+    // loaded by the launcher when the old tiled pipeline was used.
+    dma_ntrCopy32(3, gSplashPremiumBitmap, GFX_BG_SUB, 256 * 192 * sizeof(u16));
 
     VBlank::Wait();
 
     sys_setMainEngineToBottomScreen();
-    REG_DISPCNT_SUB = 0x40211015;
-    REG_BG1HOFS_SUB = 0;
-    REG_BG1VOFS_SUB = 0;
-    REG_BG1CNT_SUB = 0x1880;
-    REG_DISPCNT_SUB |= 1 << 9;
-    REG_BLDCNT_SUB = 0x3D42;
-    REG_BLDALPHA_SUB = 0x10;
+    REG_DISPCNT_SUB = (REG_DISPCNT_SUB & ~0xF) | 5 | (4 << 8);
+    REG_BG2CNT_SUB = BG_BMP16_256x256 | BG_PRIORITY_3 | BG_COLOR_16 | BG_MAP_BASE(0);
+    REG_BG2HOFS_SUB = 0;
+    REG_BG2VOFS_SUB = 0;
+    REG_BG2X_SUB = 0;
+    REG_BG2Y_SUB = 0;
+    REG_BG2PA_SUB = 256;
+    REG_BG2PB_SUB = 0;
+    REG_BG2PC_SUB = 0;
+    REG_BG2PD_SUB = 256;
     REG_MASTER_BRIGHT_SUB = 0;
+
+    // Do not accept a button that was already held while the launcher started.
+    constexpr u16 continueKeys = (1 << 0) | (1 << 3); // A or START
+    while (((~REG_KEYINPUT) & 0x03FF) & continueKeys)
+        VBlank::Wait();
+
+    // Keep the splash fixed until A or START is pressed.
+    while (!((((~REG_KEYINPUT) & 0x03FF)) & continueKeys))
+        VBlank::Wait();
+
+    // Fade the splash to black before the launcher starts loading its resources.
+    for (int brightness = 0; brightness <= 16; brightness++)
+    {
+        REG_MASTER_BRIGHT_SUB = 0x4000 | brightness;
+        VBlank::Wait();
+    }
 }
 
 void App::LoadTheme()
@@ -192,7 +210,6 @@ void App::Run()
 void App::MainLoop()
 {
     bool fadeIn = true;
-    int fadeWaitFrames = SPLASH_FRAMES;
     while (true)
     {
         Update();
@@ -211,28 +228,15 @@ void App::MainLoop()
         }
         else if (fadeIn)
         {
-            if (fadeWaitFrames)
+            bool fadeComplete = _fadeAnimator.Update();
+            int fade = _fadeAnimator.GetValue();
+            REG_MASTER_BRIGHT = 0x4000 | fade;
+            REG_MASTER_BRIGHT_SUB = 0x4000 | fade;
+            if (fadeComplete)
             {
-                fadeWaitFrames--;
-                REG_BLDALPHA_SUB = 16;
-                REG_MASTER_BRIGHT = 0x4010;
-            }
-            else
-            {
-                bool fadeComplete = _fadeAnimator.Update();
-                if (fadeComplete)
-                {
-                    fadeIn = false;
-                    REG_BLDCNT_SUB = 0;
-                    REG_DISPCNT_SUB &= ~(1 << 9);
-                    REG_MASTER_BRIGHT = 0;
-                }
-                else
-                {
-                    int fade = _fadeAnimator.GetValue();
-                    REG_BLDALPHA_SUB = ((16 - fade) << 8) | fade;
-                    REG_MASTER_BRIGHT = 0x4000 | fade;
-                }
+                fadeIn = false;
+                REG_MASTER_BRIGHT = 0;
+                REG_MASTER_BRIGHT_SUB = 0;
             }
         }
     }
