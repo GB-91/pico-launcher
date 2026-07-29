@@ -30,7 +30,7 @@
 #include "splashTop.h"
 #include "App.h"
 
-#define SPLASH_FRAMES       90
+#define SPLASH_FRAMES       44
 
 App::App(IAppSettingsService& appSettingsService, IBgmService& bgmService)
     : _mainObjPltt(GFX_PLTT_OBJ_MAIN)
@@ -68,7 +68,7 @@ void App::InitVramMapping() const
 void App::DisplaySplashScreen() const
 {
     dma_ntrCopy32(3, splashTopTiles, GFX_BG_SUB, splashTopTilesLen);
-    dma_ntrCopy32(3, splashTopMap, (u8*)GFX_BG_SUB + 0x3000, splashTopMapLen);
+    dma_ntrCopy32(3, splashTopMap, (u8*)GFX_BG_SUB + 0xC000, splashTopMapLen);
     mem_setVramHMapping(MEM_VRAM_H_LCDC);
     dma_ntrCopy32(3, splashTopPal, (void*)0x0689A000, splashTopPalLen);
     mem_setVramHMapping(MEM_VRAM_H_SUB_BG_EXT_PLTT_SLOT_0123);
@@ -79,7 +79,7 @@ void App::DisplaySplashScreen() const
     REG_DISPCNT_SUB = 0x40211015;
     REG_BG1HOFS_SUB = 0;
     REG_BG1VOFS_SUB = 0;
-    REG_BG1CNT_SUB = 0x0680;
+    REG_BG1CNT_SUB = 0x1880;
     REG_DISPCNT_SUB |= 1 << 9;
     REG_BLDCNT_SUB = 0x3D42;
     REG_BLDALPHA_SUB = 0x10;
