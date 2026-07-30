@@ -24,7 +24,10 @@ MaterialBannerListItemView::MaterialBannerListItemView(std::unique_ptr<IRomBrows
         Label2DView::CreateShared(152, 16, 128, fontRepository->GetFont(FontType::Medium10)),
         Label2DView::CreateShared(152, 16, 128, fontRepository->GetFont(FontType::Regular10)),
         Label2DView::CreateShared(152, 16, 128, fontRepository->GetFont(FontType::Regular10)))
-    , _materialColorScheme(materialColorScheme) { }
+    , _materialColorScheme(materialColorScheme)
+{
+    _firstLine->SetHorizontalAlignment(Alignment::Center);
+}
 
 void MaterialBannerListItemView::Draw(GraphicsContext& graphicsContext)
 {
