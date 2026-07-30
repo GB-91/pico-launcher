@@ -1,0 +1,132 @@
+{
+    "type": "custom",
+    "name": "DSPico Enhanced Light",
+    "description": "Tema exclusivo DSPico Launcher Enhanced, com detalhes vermelho-framboesa.",
+    "author": "Gabriel Belloni",
+    "primaryColor": {
+        "r": 230,
+        "g": 0,
+        "b": 74
+    },
+    "darkTheme": false,
+    "topIcon": {
+        "position": {
+            "x": 18,
+            "y": 126
+        },
+        "blendColor": {
+            "r": 250,
+            "g": 250,
+            "b": 252
+        }
+    },
+    "topBannerTextLine0": {
+        "position": {
+            "x": 62,
+            "y": 120
+        },
+        "width": 178,
+        "textColor": {
+            "r": 28,
+            "g": 28,
+            "b": 32
+        },
+        "blendColor": {
+            "r": 250,
+            "g": 250,
+            "b": 252
+        }
+    },
+    "topBannerTextLine1": {
+        "position": {
+            "x": 62,
+            "y": 136
+        },
+        "width": 178,
+        "textColor": {
+            "r": 28,
+            "g": 28,
+            "b": 32
+        },
+        "blendColor": {
+            "r": 250,
+            "g": 250,
+            "b": 252
+        }
+    },
+    "topBannerTextLine2": {
+        "position": {
+            "x": 62,
+            "y": 151
+        },
+        "width": 178,
+        "textColor": {
+            "r": 28,
+            "g": 28,
+            "b": 32
+        },
+        "blendColor": {
+            "r": 250,
+            "g": 250,
+            "b": 252
+        }
+    },
+    "topFileNameText": {
+        "position": {
+            "x": 18,
+            "y": 169
+        },
+        "width": 220,
+        "textColor": {
+            "r": 28,
+            "g": 28,
+            "b": 32
+        },
+        "blendColor": {
+            "r": 250,
+            "g": 250,
+            "b": 252
+        }
+    },
+    "topCover": {
+        "position": {
+            "x": 75,
+            "y": 10
+        }
+    },
+    "gridIcon": {
+        "blendColor": {
+            "r": 250,
+            "g": 250,
+            "b": 252
+        }
+    },
+    "bannerListIcon": {
+        "blendColor": {
+            "r": 250,
+            "g": 250,
+            "b": 252
+        }
+    },
+    "bannerListTextLine0": {
+        "textColor": {
+            "r": 28,
+            "g": 28,
+            "b": 32
+        }
+    },
+    "bannerListTextLine1": {
+        "textColor": {
+            "r": 28,
+            "g": 28,
+            "b": 32
+        }
+    },
+    "bannerListTextLine2": {
+        "textColor": {
+            "r": 28,
+            "g": 28,
+            "b": 32
+        }
+    }
+}
