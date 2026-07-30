@@ -27,10 +27,19 @@
 #include "themes/ThemeInfoFactory.h"
 #include "themes/ThemeFactory.h"
 #include "gui/Gx.h"
-#include "splashTop.h"
+#include "splashEnhanced01.h"
+#include "splashEnhanced02.h"
+#include "splashEnhanced03.h"
+#include "splashEnhanced04.h"
+#include "splashEnhanced05.h"
+#include "splashEnhanced06.h"
+#include "splashEnhanced07.h"
+#include "splashEnhanced08.h"
+#include "splashEnhanced09.h"
+#include "splashEnhanced10.h"
 #include "App.h"
 
-#define SPLASH_FRAMES       44
+#define SPLASH_FRAMES       60  // ~1.0 s after initialization; cross-fade follows
 
 App::App(IAppSettingsService& appSettingsService, IBgmService& bgmService)
     : _mainObjPltt(GFX_PLTT_OBJ_MAIN)
@@ -67,10 +76,53 @@ void App::InitVramMapping() const
 
 void App::DisplaySplashScreen() const
 {
-    dma_ntrCopy32(3, splashTopTiles, GFX_BG_SUB, splashTopTilesLen);
-    dma_ntrCopy32(3, splashTopMap, (u8*)GFX_BG_SUB + 0x3000, splashTopMapLen);
+    // Build 001: choose one of ten branded splash variants at boot.
+    // The hardware registers add enough variation between boots without
+    // requiring the filesystem or RTC to be initialized first.
+    const u32 splashIndex = (REG_VCOUNT ^ REG_KEYINPUT ^ REG_TM0CNT_L) % 10;
+
+    const unsigned int* tiles = splashEnhanced01Tiles;
+    const unsigned short* map = splashEnhanced01Map;
+    const unsigned short* palette = splashEnhanced01Pal;
+    unsigned int tilesLen = splashEnhanced01TilesLen;
+    unsigned int mapLen = splashEnhanced01MapLen;
+    unsigned int paletteLen = splashEnhanced01PalLen;
+
+    #define SELECT_SPLASH(N) \
+        tiles = splashEnhanced##N##Tiles; \
+        map = splashEnhanced##N##Map; \
+        palette = splashEnhanced##N##Pal; \
+        tilesLen = splashEnhanced##N##TilesLen; \
+        mapLen = splashEnhanced##N##MapLen; \
+        paletteLen = splashEnhanced##N##PalLen
+
+    switch (splashIndex)
+    {
+        case 1: SELECT_SPLASH(02); break;
+        case 2: SELECT_SPLASH(03); break;
+        case 3: SELECT_SPLASH(04); break;
+        case 4: SELECT_SPLASH(05); break;
+        case 5: SELECT_SPLASH(06); break;
+        case 6: SELECT_SPLASH(07); break;
+        case 7: SELECT_SPLASH(08); break;
+        case 8: SELECT_SPLASH(09); break;
+        case 9: SELECT_SPLASH(10); break;
+        default: break;
+    }
+    #undef SELECT_SPLASH
+
+    // Clear the complete 128 KiB sub-screen BG VRAM before drawing.
+    // The Enhanced splash can use far more unique tiles than the original image.
+    // Previously the tile map was placed at 0x3000, which overlapped the tile data
+    // and produced corrupted blocks/text on real Nintendo DS hardware.
+    dma_ntrFill32(3, 0, GFX_BG_SUB, 128 * 1024);
+    dma_ntrCopy32(3, tiles, GFX_BG_SUB, tilesLen);
+
+    // Screen base block 24 = offset 0xC000. This safely separates the map from
+    // the 8 bpp tile graphics, even when the splash contains many unique tiles.
+    dma_ntrCopy32(3, map, (u8*)GFX_BG_SUB + 0xC000, mapLen);
     mem_setVramHMapping(MEM_VRAM_H_LCDC);
-    dma_ntrCopy32(3, splashTopPal, (void*)0x0689A000, splashTopPalLen);
+    dma_ntrCopy32(3, palette, (void*)0x0689A000, paletteLen);
     mem_setVramHMapping(MEM_VRAM_H_SUB_BG_EXT_PLTT_SLOT_0123);
 
     VBlank::Wait();
@@ -79,7 +131,7 @@ void App::DisplaySplashScreen() const
     REG_DISPCNT_SUB = 0x40211015;
     REG_BG1HOFS_SUB = 0;
     REG_BG1VOFS_SUB = 0;
-    REG_BG1CNT_SUB = 0x0680;
+    REG_BG1CNT_SUB = 0x1880; // 256-color text BG, screen base block 24 (0xC000)
     REG_DISPCNT_SUB |= 1 << 9;
     REG_BLDCNT_SUB = 0x3D42;
     REG_BLDALPHA_SUB = 0x10;

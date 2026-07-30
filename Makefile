@@ -12,9 +12,8 @@ export LIBTWL           ?= $(shell pwd)/libs/libtwl
 
 NAME		:= 	LAUNCHER
 
-GAME_TITLE	:= DSPICO
-GAME_SUBTITLE	:= LAUNCHER ENHANCED
-GAME_AUTHOR	:= Project by Gabriel Belloni
+GAME_TITLE	:= Pico Launcher
+GAME_AUTHOR	:= LNH team
 GAME_ICON	:= icon.bmp
 
 # DLDI and internal SD slot of DSi
