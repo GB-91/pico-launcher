@@ -79,7 +79,7 @@ void App::DisplaySplashScreen() const
     // Build 001: choose one of ten branded splash variants at boot.
     // The hardware registers add enough variation between boots without
     // requiring the filesystem or RTC to be initialized first.
-    const u32 splashIndex = (REG_VCOUNT ^ REG_KEYINPUT ^ REG_TM0CNT_L) % 10;
+    const u32 splashIndex = (REG_VCOUNT ^ REG_KEYINPUT) % 10;
 
     const unsigned int* tiles = splashEnhanced01Tiles;
     const unsigned short* map = splashEnhanced01Map;
@@ -115,7 +115,6 @@ void App::DisplaySplashScreen() const
     // The Enhanced splash can use far more unique tiles than the original image.
     // Previously the tile map was placed at 0x3000, which overlapped the tile data
     // and produced corrupted blocks/text on real Nintendo DS hardware.
-    dma_ntrFill32(3, 0, GFX_BG_SUB, 128 * 1024);
     dma_ntrCopy32(3, tiles, GFX_BG_SUB, tilesLen);
 
     // Screen base block 24 = offset 0xC000. This safely separates the map from
