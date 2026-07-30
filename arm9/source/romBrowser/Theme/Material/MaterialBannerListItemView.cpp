@@ -26,7 +26,7 @@ MaterialBannerListItemView::MaterialBannerListItemView(std::unique_ptr<IRomBrows
         Label2DView::CreateShared(152, 16, 128, fontRepository->GetFont(FontType::Regular10)))
     , _materialColorScheme(materialColorScheme)
 {
-    _firstLine->SetHorizontalAlignment(Alignment::Center);
+    // Bottom list intentionally uses only the first banner line.
 }
 
 void MaterialBannerListItemView::Draw(GraphicsContext& graphicsContext)
@@ -97,28 +97,10 @@ void MaterialBannerListItemView::Draw(GraphicsContext& graphicsContext)
         _thirdLine->SetBackgroundColor(_materialColorScheme->surfaceBright);
     }
 
-    if (_lines == 1)
-    {
-        _firstLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 14);
-    }
-    else if (_lines == 2)
-    {
-        _firstLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 8);
-        _secondLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 20);
-    }
-    else
-    {
-        _firstLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 2);
-        _secondLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 14);
-        _thirdLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 26);
-    }
-
-    if (_lines >= 1)
-        _firstLine->Draw(graphicsContext);
-    if (_lines >= 2)
-        _secondLine->Draw(graphicsContext);
-    if (_lines >= 3)
-        _thirdLine->Draw(graphicsContext);
+    // The detailed three-line banner remains available on the top screen.
+    // On the bottom list, always render only the game title on one line.
+    _firstLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 14);
+    _firstLine->Draw(graphicsContext);
 
     if (_icon)
     {

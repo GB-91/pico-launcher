@@ -50,7 +50,7 @@ CustomBannerListItemView::CustomBannerListItemView(std::unique_ptr<IRomBrowserIt
     , _selectedTexVramOffset(selectedTexVramOffset)
     , _selectedPlttVramOffset(selectedPlttVramOffset)
 {
-    _firstLine->SetHorizontalAlignment(Alignment::Center);
+    // Bottom list intentionally uses only the first banner line.
 }
 
 void CustomBannerListItemView::Draw(GraphicsContext& graphicsContext)
@@ -91,34 +91,10 @@ void CustomBannerListItemView::Draw(GraphicsContext& graphicsContext)
     _secondLine->SetForegroundColor(_customThemeInfo->bannerListTextLine1Info.GetTextColor());
     _thirdLine->SetForegroundColor(_customThemeInfo->bannerListTextLine2Info.GetTextColor());
 
-    if (_lines == 1)
-    {
-        _firstLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 14);
-    }
-    else if (_lines == 2)
-    {
-        _firstLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 8);
-        _secondLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 20);
-    }
-    else
-    {
-        _firstLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 2);
-        _secondLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 14);
-        _thirdLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 26);
-    }
-
-    if (_lines >= 1)
-    {
-        _firstLine->Draw(graphicsContext);
-    }
-    if (_lines >= 2)
-    {
-        _secondLine->Draw(graphicsContext);
-    }
-    if (_lines >= 3)
-    {
-        _thirdLine->Draw(graphicsContext);
-    }
+    // The detailed three-line banner remains available on the top screen.
+    // On the bottom list, always render only the game title on one line.
+    _firstLine->SetPosition(_position.x + 6 + 32 + 6, _position.y + 14);
+    _firstLine->Draw(graphicsContext);
 
     if (_icon)
     {
